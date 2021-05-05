@@ -203,6 +203,38 @@ def create_question():
   one question at a time is displayed, the user is allowed to answer
   and shown whether they were correct or not. 
   '''
+  @app.route("/play", methods=['POST'])
+  def post_quizzes():
+    body = request.get_json()
+    previous_questions = body.get("previous_questions", [])
+    quiz_category = body.get('quiz_category', None)
+    try:
+      if quiz_category:
+          if quiz_category['id']:
+            quiz = Question.query.all()
+          else:
+            quiz = Question.query.filter(Question.category == quiz_category['id']).all()
+      if not quiz:
+        return abort(422)
+      selected = []
+      for question in quiz:
+        if len(previous_questions) == 0:
+            abort(404)
+        else:
+            if question.id not in previous_questions:
+                selected.append(question.format())
+      if len(selected) != 0:
+        result = random.choice(selected)
+        return jsonify({
+          "success": True,
+          "question": result
+        })
+      else:
+        return jsonify({
+          "success": False
+        })
+    except BaseException:
+      abort(422)
 
   '''
   @TODO: 
