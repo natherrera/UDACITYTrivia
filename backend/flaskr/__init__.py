@@ -3,32 +3,23 @@ from flask import Flask, request, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 import random
-
-from models import setup_db, Question, Category
-
-QUESTIONS_PER_PAGE = 10
+from model.models import setup_db, Question, Category
+from utils.paginators import paginate_questions
 
 
-def paginate_questions(request, selection):
-    body = request.get_json()
-    page = request.args.get('page', 1, type=int)
-    start = (page - 1) * QUESTIONS_PER_PAGE
-    end = start + QUESTIONS_PER_PAGE
-    formatted_questions = [question.format() for question in selection]
-    return formatted_questions[start:end]
+#----------------------------------------------------------------------------#
+# APP settings
+#----------------------------------------------------------------------------#
 
 def create_app(test_config=None):
-  # create and configure the app
   app = Flask(__name__)
   setup_db(app)
-  '''
-  @TODO: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
-  '''
   CORS(app, resources={r"/api/*": {"origins": "*"}})
 
-  '''
-  @TODO: Use the after_request decorator to set Access-Control-Allow
-  '''
+#----------------------------------------------------------------------------#
+# APIs
+#----------------------------------------------------------------------------#
+
   @app.after_request
   def after_request(response):
       response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
@@ -40,11 +31,6 @@ def create_app(test_config=None):
       return jsonify({'message':'Hello, World!'})
   
   
-  '''
-  @TODO: 
-  Create an endpoint to handle GET requests 
-  for all available categories.
-  '''
   @app.route('/categories')
   def categories():
       data = []
@@ -89,7 +75,7 @@ def create_app(test_config=None):
           'questions': questions_list,
           'total_questions':len(questions),
           'categories': questions_categories,
-          'current_category': '',
+          'current_category': None,
       })
 
 
@@ -124,25 +110,25 @@ def create_app(test_config=None):
   the form will clear and the question will appear at the end of the last page
   of the questions list in the "List" tab.  
   '''
-@app.route('/questions/create', methods=['POST'])
-def create_question():
-  error = False
-  payload = request.get_json()
-  question = Question()
-  try:
-      question.question = body.get('question', None)
-      question.answer = body.get('answer', None)
-      question.category = body.get('category', None)
-      question.difficulty = body.get('difficulty', None)
-      question.insert()
-      return jsonify(
-        {
-          "success": True,
-          "body": question
-        }
-      )
-  except BaseException:
-            abort(422) 
+  @app.route('/questions/create', methods=['POST'])
+  def create_question():
+    error = False
+    payload = request.get_json()
+    question = Question()
+    try:
+        question.question = body.get('question', None)
+        question.answer = body.get('answer', None)
+        question.category = body.get('category', None)
+        question.difficulty = body.get('difficulty', None)
+        question.insert()
+        return jsonify(
+          {
+            "success": True,
+            "body": question
+          }
+        )
+    except BaseException:
+              abort(422) 
 
   '''   
   @TODO: 
