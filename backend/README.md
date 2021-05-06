@@ -75,32 +75,6 @@ One note before you delve into your tasks: for each endpoint, you are expected t
 
 9. Create error handlers for all expected errors including 400, 404, 422 and 500. 
 
-
-
-## Review Comment to the Students
-```
-This README is missing documentation of your endpoints. Below is an example for your endpoint to get all categories. Please use it as a reference for creating your documentation and resubmit your code. 
-
-Endpoints
-GET '/api/v1.0/categories'
-GET ...
-POST ...
-DELETE ...
-
-GET '/api/v1.0/categories'
-- Fetches a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category
-- Request Arguments: None
-- Returns: An object with a single key, categories, that contains a object of id: category_string key:value pairs. 
-{'1' : "Science",
-'2' : "Art",
-'3' : "Geography",
-'4' : "History",
-'5' : "Entertainment",
-'6' : "Sports"}
-
-```
-
-
 ## Testing
 To run the tests, run
 ```
@@ -109,3 +83,185 @@ createdb trivia_test
 psql trivia_test < trivia.psql
 python test_flaskr.py
 ```
+
+## Review Comment to the Students
+```
+This README is missing documentation of your endpoints. Below is an example for your endpoint to get all categories. Please use it as a reference for creating your documentation and resubmit your code. 
+
+Endpoints:
+GET '/categories'
+GET '/questions'
+DELETE '/questions/<int:question_id>'
+POST '/questions'
+SEARCH '/questions/search'
+GET '/categories/<int:category_id>/questions'
+POST '/quizzes'
+
+```
+GET '/categories'
+- General: Returns a dictionary of categories (keys and values) and success flag.
+- Sample: curl http://127.0.0.1:5000/questions
+- Response:
+  "categories": {
+    "1": "Science",
+    "2": "Art",
+    "3": "Geography",
+    "4": "History",
+    "5": "Entertainment",
+    "6": "Sports"
+  },
+  "success": true
+}
+
+```
+GET '/questions'
+- General: Return a list of questions paginated in groups of 10, total number of questions, current category, category dictionary and success flag.
+- Response:
+{
+    "categories": {
+        "1": "Science",
+        "2": "Art",
+        "3": "Geography",
+        "4": "History",
+        "5": "Entertainment",
+        "6": "Sports"
+    },
+    "current_category": "History",
+    "questions": [
+        {
+            "answer": "Maya Angelou",
+            "category": 4,
+            "difficulty": 2,
+            "id": 5,
+            "question": "Whose autobiography is entitled 'I Know Why the Caged Bird Sings'?"
+        },
+        {
+            "answer": "Muhammad Ali",
+            "category": 4,
+            "difficulty": 1,
+            "id": 9,
+            "question": "What boxer's original name is Cassius Clay?"
+        },
+        {
+            "answer": "Apollo 13",
+            "category": 5,
+            "difficulty": 4,
+            "id": 2,
+            "question": "What movie earned Tom Hanks his third straight Oscar nomination, in 1996?"
+        }
+    ],
+    "success": true,
+    "total_questions": 3
+}
+
+```
+```
+DELETE '/questions/<int:question_id>'
+- General: Delete question by id in query param
+Result:
+  "deleted": 28,
+  "success": true
+}
+```
+```
+POST '/questions'
+- General: Create a new question and result is a success flag.
+- Request:
+{
+    "question": "Hematology is a branch of medicine involving the study of what?",
+    "answer": "sdsd",
+    "difficulty": "4",
+    "category": "1"
+}
+- Response:
+{
+    "success": true
+}
+
+
+```
+```
+SEARCH '/questions/search'
+- General: Return a list of maching results with search term.
+- Request:
+{
+    "searchTerm": "autobiography"
+}
+-Response:
+{
+    "count": 1,
+    "questions": [
+        {
+            "answer": "Maya Angelou",
+            "category": 4,
+            "difficulty": 2,
+            "id": 5,
+            "question": "Whose autobiography is entitled 'I Know Why the Caged Bird Sings'?"
+        }
+    ],
+    "success": true
+}
+
+```
+```
+GET '/categories/<int:category_id>/questions'
+- General: Return a list of questions paginated in groups of 10, current category, total number of questions and success flag.
+- Response:
+{
+    "current_category": "Science",
+    "questions": [
+        {
+            "answer": "The Liver",
+            "category": 1,
+            "difficulty": 4,
+            "id": 20,
+            "question": "What is the heaviest organ in the human body?"
+        },
+        {
+            "answer": "Alexander Fleming",
+            "category": 1,
+            "difficulty": 3,
+            "id": 21,
+            "question": "Who discovered penicillin?"
+        },
+        {
+            "answer": "Blood",
+            "category": 1,
+            "difficulty": 4,
+            "id": 22,
+            "question": "Hematology is a branch of medicine involving the study of what?"
+        }
+    ],
+    "success": true,
+    "total_questions": 3
+}
+
+
+
+```
+POST '/quizzes'
+- Return one random question from a specific category.
+- Request: 
+{
+    "previous_questions": [
+        1,
+        4,
+        20,
+        15
+    ],
+    "quiz_category": {
+        "type": "science",
+        "id": 4
+    }
+}
+- Result:
+{
+    "question": {
+        "answer": "Maya Angelou",
+        "category": 4,
+        "difficulty": 2,
+        "id": 5,
+        "question": "Whose autobiography is entitled 'I Know Why the Caged Bird Sings'?"
+    },
+    "success": true
+}

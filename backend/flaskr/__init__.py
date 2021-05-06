@@ -100,8 +100,7 @@ def create_app(test_config=None):
         body = request.get_json()
         search = body.get('searchTerm', None)
         if search is not None:
-            questions = Question.query.filter(
-                Question.question.ilike("%" + search + "%")).all()
+            questions = Question.query.filter(Question.question.ilike("%" + search + "%")).all()
             return jsonify({
                 "success": True,
                 "count": len(questions),
@@ -113,13 +112,12 @@ def create_app(test_config=None):
     @app.route('/categories/<int:category_id>/questions', methods=['GET'])
     def get_category_questions(category_id):
         category = Category.query.filter_by(id=category_id).first_or_404()
-        filtered_questions = Question.query.
-        filter_by(category=category_id).all()
+        filtered_questions = Question.query.filter_by(category=category_id).all()
         if category is None:
             abort(422)
         elif len(filtered_questions) <= 0:
             abort(404)
-            questions = paginate_questions(request, filtered_questions)
+        questions = paginate_questions(request, filtered_questions)
         return jsonify({
             "success": True,
             "questions": questions,
@@ -134,11 +132,10 @@ def create_app(test_config=None):
         previous_questions = body.get('previous_questions', None)
         exist = False
         if category['id'] != 0:
-            questions = Question.query.
-            filter_by(category=category['id']).all()
+            questions = Question.query.filter_by(category=category['id']).all()
         else:
             questions = Question.query.all()
-            random_question = random.choice(questions).format()
+        random_question = random.choice(questions).format()
         if random_question['id'] in previous_questions:
             exist = True
         while exist:
@@ -146,10 +143,10 @@ def create_app(test_config=None):
                 return jsonify({
                     'success': True
                 }), 200
-            return jsonify({
-                'success': True,
-                'question': random_question
-            })
+        return jsonify({
+            'success': True,
+            'question': random_question
+        })
 
     @app.errorhandler(404)
     def not_found(error):
