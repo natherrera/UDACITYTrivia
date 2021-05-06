@@ -22,7 +22,7 @@ class QuizView extends Component {
 
   componentDidMount(){
     $.ajax({
-      url: `http://localhost:5000/categories`, //TODO: update request URL
+      url: `http://127.0.0.1:5000/categories`, //TODO: update request URL
       type: "GET",
       success: (result) => {
         this.setState({ categories: result.categories })
@@ -46,7 +46,7 @@ class QuizView extends Component {
   getNextQuestion = () => {
     const previousQuestions = [...this.state.previousQuestions]
     if(this.state.currentQuestion.id) { previousQuestions.push(this.state.currentQuestion.id) }
-
+    
     $.ajax({
       url: 'http://127.0.0.1:5000/quizzes', //TODO: update request URL
       type: "POST",
@@ -104,7 +104,7 @@ class QuizView extends Component {
           <div className="quiz-play-holder">
               <div className="choose-header">Choose Category</div>
               <div className="category-holder">
-                  <div className="play-category" onClick={this.selectCategory}>ALL</div>
+                  <div className="play-category">ALL</div>
                   {Object.keys(this.state.categories).map(id => {
                   return (
                     <div
@@ -165,8 +165,8 @@ class QuizView extends Component {
         )
   }
 
-
   render() {
+    console.log(this.state.currentQuestion)
     return this.state.quizCategory
         ? this.renderPlay()
         : this.renderPrePlay()

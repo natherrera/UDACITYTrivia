@@ -15,6 +15,7 @@ def create_app(test_config=None):
   app = Flask(__name__)
   setup_db(app)
   CORS(app)
+  
 
 #----------------------------------------------------------------------------#
 # APIs
@@ -22,9 +23,9 @@ def create_app(test_config=None):
 
   @app.after_request
   def after_request(response):
-      response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-      response.headers.add('Access-Control-Allow-Headers', 'GET, POST, PATCH, DELETE, OPTION')
-      return response
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,true')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,POST,DELETE,OPTIONS')
+    return response
 
   @app.route('/')
   def get_greeting():
@@ -33,12 +34,15 @@ def create_app(test_config=None):
   
   @app.route('/categories', methods=['GET'])
   def categories():
-      data = []
+      data = {}
       categories = Category.query.all()
       if len(categories) > 0:
         for category in categories:
-            data.append({"id": category.id, "type": category.type, "success": True})
-        return jsonify(data)
+            data[category.id] = category.type
+        return jsonify({
+          'categories': data,
+          'success': True
+        })
       else:
         abort(404)
 
@@ -118,7 +122,7 @@ def create_app(test_config=None):
       question = body['question'],
       answer = body['answer'],
       difficulty=  int(new_difficulty),
-      category = str(new_category)
+      category = int(new_category)
     )
     question.insert()
     return jsonify({
@@ -192,10 +196,10 @@ def create_app(test_config=None):
     previous_questions = body.get("previous_questions", [])
     quiz_category = body.get('quiz_category', None)
     try:
-      if quiz_category is None:
+      if quiz_category['id'] != 0:
         quiz = Question.query.all()
       else:
-        quiz = Question.query.filter(Question.category == quiz_category).all()
+        quiz = Question.query.filter(Question.category == quiz_category['id']).all()
       if not quiz:
         return abort(422)
       selected = []
