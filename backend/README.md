@@ -237,7 +237,7 @@ GET '/categories/<int:category_id>/questions'
 }
 
 
-
+```
 ```
 POST '/quizzes'
 - Return one random question from a specific category.
@@ -265,3 +265,5 @@ POST '/quizzes'
     },
     "success": true
 }
+```
+```
