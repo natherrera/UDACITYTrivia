@@ -6,14 +6,16 @@ from sqlalchemy import func, desc
 from flaskr import create_app
 from model.models import setup_db, Question, Category
 
+
 class TriviaTestCase(unittest.TestCase):
-    """This class represents the ___ test case"""
 
     def setUp(self):
+
         self.app = create_app()
         self.client = self.app.test_client
         self.database_name = "trivia_test"
-        self.database_path = "postgres://{}:{}@{}/{}".format("postgres", "postgres", 'localhost:5432', self.database_name)
+        self.database_path = "postgres://{}:{}@{}/{}"
+        .format("postgres", "postgres", 'localhost:5432', self.database_name)
         setup_db(self.app, self.database_path)
         with self.app.app_context():
             self.db = SQLAlchemy()
@@ -35,7 +37,7 @@ class TriviaTestCase(unittest.TestCase):
             }
             self.search_term = {'searchTerm': 'fantasy'}
             self.pagination = {'totalQuestions': 0}
-        
+
     def tearDown(self):
         """Executed after reach test"""
         pass
@@ -45,7 +47,7 @@ class TriviaTestCase(unittest.TestCase):
         res = self.client().get('/')
 
         self.assertEqual(res.status_code, 200)
-    
+
     def test__get_paginated_questions(self):
         res = self.client().get('/questions?page=1')
         data = json.loads(res.data)
@@ -56,20 +58,19 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue('current_categories', None)
         self.assertTrue(data['categories'])
 
-    
     def test__delete_question(self):
         res = self.client().delete('/questions/100')
         data = json.loads(res.data)
         self.assertEqual(res.status_code, 405)
         self.assertEqual(data['success'], False)
-    
+
     def test__get_categories(self):
         res = self.client().get('/categories')
         data = json.loads(res.data)
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
         self.assertTrue(data['categories'])
-    
+
     def test__wrong_categories(self):
         res = self.client().get('/categories/20/questions')
         data = json.loads(res.data)
@@ -83,7 +84,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 404)
         self.assertEqual(data['success'], False)
         self.assertEqual(data['message'], 'Resource not found')
-    
+
     def test__404_exceed_max_page(self):
         res = self.client().get('/questions?page=1000',
                                 json=self.pagination)
@@ -112,6 +113,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
         self.assertEqual(len(data['questions']), 1)
+
 
 # Make the tests conveniently executable
 if __name__ == "__main__":
