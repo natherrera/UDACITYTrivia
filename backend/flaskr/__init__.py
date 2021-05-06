@@ -14,7 +14,7 @@ from utils.paginators import paginate_questions
 def create_app(test_config=None):
   app = Flask(__name__)
   setup_db(app)
-  CORS(app, resources={r"/api/*": {"origins": "*"}})
+  CORS(app)
 
 #----------------------------------------------------------------------------#
 # APIs
@@ -31,7 +31,7 @@ def create_app(test_config=None):
       return jsonify({'message':'Hello, World!'})
   
   
-  @app.route('/categories')
+  @app.route('/categories', methods=['GET'])
   def categories():
       data = []
       categories = Category.query.all()
@@ -109,25 +109,21 @@ def create_app(test_config=None):
   the form will clear and the question will appear at the end of the last page
   of the questions list in the "List" tab.  
   '''
-  @app.route('/questions/create', methods=['POST'])
+  @app.route('/questions', methods=['POST'])
   def create_question():
-    error = False
-    payload = request.get_json()
-    question = Question()
-    try:
-        question.question = body.get('question', None)
-        question.answer = body.get('answer', None)
-        question.category = body.get('category', None)
-        question.difficulty = body.get('difficulty', None)
-        question.insert()
-        return jsonify(
-          {
-            "success": True,
-            "body": question
-          }
-        )
-    except BaseException:
-              abort(422) 
+    body = request.get_json()
+    new_difficulty = body.get('difficulty', None)
+    new_category = body.get('category', None)
+    question = Question(
+      question = body['question'],
+      answer = body['answer'],
+      difficulty=  int(new_difficulty),
+      category = str(new_category)
+    )
+    question.insert()
+    return jsonify({
+      "success":True
+    })
 
   '''   
   @TODO: 
@@ -141,14 +137,15 @@ def create_app(test_config=None):
   '''
   @app.route('/questions/search', methods=['POST'])
   def search_questions():
-      search = request.form.get('search_term', '')
+      body = request.get_json()
+      search = body.get('searchTerm', None)
       if search is not None:
         questions = Question.query.filter(Question.question.ilike("%" + search + "%")).all()
-        return {
+        return jsonify({
             "success": True,
             "count": len(questions),
             "questions": paginate_questions(request, questions),
-        }
+        })
       else:
         abort(404)
   
@@ -189,31 +186,34 @@ def create_app(test_config=None):
   one question at a time is displayed, the user is allowed to answer
   and shown whether they were correct or not. 
   '''
-  @app.route("/play", methods=['POST'])
+  @app.route("/quizzes", methods=['POST'])
   def post_quizzes():
     body = request.get_json()
     previous_questions = body.get("previous_questions", [])
     quiz_category = body.get('quiz_category', None)
     try:
-      if quiz_category:
-          if quiz_category['id']:
-            quiz = Question.query.all()
-          else:
-            quiz = Question.query.filter(Question.category == quiz_category['id']).all()
+      if quiz_category is None:
+        quiz = Question.query.all()
+      else:
+        quiz = Question.query.filter(Question.category == quiz_category).all()
       if not quiz:
         return abort(422)
       selected = []
       for question in quiz:
-        if len(previous_questions) == 0:
-            abort(404)
+        if len(previous_questions) <= 0:
+          abort(404)
         else:
-            if question.id not in previous_questions:
-                selected.append(question.format())
+          if question.id not in previous_questions:
+            selected.append(question.format())
       if len(selected) != 0:
         result = random.choice(selected)
         return jsonify({
           "success": True,
-          "question": result
+          "id": result['id'],
+          "question": result["question"],
+          "answer": result["answer"], 
+          "difficulty": result["difficulty"],
+          "category": result["category"]
         })
       else:
         return jsonify({
@@ -221,6 +221,8 @@ def create_app(test_config=None):
         })
     except BaseException:
       abort(422)
+
+       
 
   '''
   @TODO: 
