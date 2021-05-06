@@ -113,7 +113,6 @@ def create_app(test_config=None):
   def get_category_questions(category_id):
     category = Category.query.filter_by(id=category_id).first_or_404()
     filtered_questions = Question.query.filter_by(category=category_id).all()
-    print(category)
     if category is None:
       abort(422)
     elif len(filtered_questions) <= 0:

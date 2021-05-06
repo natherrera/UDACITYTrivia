@@ -49,7 +49,6 @@ class TriviaTestCase(unittest.TestCase):
     def test__get_paginated_questions(self):
         res = self.client().get('/questions?page=1')
         data = json.loads(res.data)
-        print(data)
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
         self.assertTrue(data['questions'])
