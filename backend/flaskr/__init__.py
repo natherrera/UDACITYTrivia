@@ -100,7 +100,8 @@ def create_app(test_config=None):
         body = request.get_json()
         search = body.get('searchTerm', None)
         if search is not None:
-            questions = Question.query.filter(Question.question.ilike("%" + search + "%")).all()
+            questions = Question.query.\
+                filter(Question.question.ilike("%" + search + "%")).all()
             return jsonify({
                 "success": True,
                 "count": len(questions),
@@ -112,7 +113,8 @@ def create_app(test_config=None):
     @app.route('/categories/<int:category_id>/questions', methods=['GET'])
     def get_category_questions(category_id):
         category = Category.query.filter_by(id=category_id).first_or_404()
-        filtered_questions = Question.query.filter_by(category=category_id).all()
+        filtered_questions = Question.query.\
+            filter_by(category=category_id).all()
         if category is None:
             abort(422)
         elif len(filtered_questions) <= 0:
